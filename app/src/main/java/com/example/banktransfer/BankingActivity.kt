@@ -2,8 +2,10 @@ package com.example.banktransfer
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -19,6 +21,17 @@ class BankingActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private var currentBalance = 0.0
+
+    private val thaiBanks = arrayOf(
+        "Kasikorn Bank (KBank)",
+        "Siam Commercial Bank (SCB)",
+        "Bangkok Bank (BBL)",
+        "Krungthai Bank (KTB)",
+        "Bank of Ayudhya (Krungsri)",
+        "TMBThanachart Bank (ttb)",
+        "Government Savings Bank (GSB)",
+        "CIMB Thai Bank"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,10 +50,16 @@ class BankingActivity : AppCompatActivity() {
 
         val textWelcome = findViewById<TextView>(R.id.textWelcome)
         val textBalance = findViewById<TextView>(R.id.textBalance)
+        val spinnerBanks = findViewById<Spinner>(R.id.spinnerBanks)
         val editRecipient = findViewById<EditText>(R.id.editRecipientAccount)
         val editAmount = findViewById<EditText>(R.id.editAmount)
         val btnTransfer = findViewById<Button>(R.id.btnTransfer)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
+
+        // Setup Spinner
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, thaiBanks)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerBanks.adapter = adapter
 
         textWelcome.text = "Welcome, ${currentUser.email}"
 
@@ -59,6 +78,7 @@ class BankingActivity : AppCompatActivity() {
         }
 
         btnTransfer.setOnClickListener {
+            val selectedBank = spinnerBanks.selectedItem.toString()
             val recipientEmail = editRecipient.text.toString().trim()
             val amountStr = editAmount.text.toString().trim()
 
@@ -78,7 +98,7 @@ class BankingActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            performTransfer(recipientEmail, amount)
+            performTransfer(recipientEmail, amount, selectedBank)
         }
 
         btnLogout.setOnClickListener {
@@ -88,7 +108,7 @@ class BankingActivity : AppCompatActivity() {
         }
     }
 
-    private fun performTransfer(recipientEmail: String, amount: Double) {
+    private fun performTransfer(recipientEmail: String, amount: Double, bankName: String) {
         val senderUid = auth.currentUser!!.uid
         
         // Find recipient by email
@@ -132,13 +152,14 @@ class BankingActivity : AppCompatActivity() {
                         "from" to senderUid,
                         "to" to recipientUid,
                         "amount" to amount,
+                        "bank" to bankName,
                         "timestamp" to Timestamp.now()
                     )
                     transaction.set(db.collection("transactions").document(), transactionData)
 
                     null
                 }.addOnSuccessListener {
-                    Toast.makeText(this, "Transfer Successful", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Transfer of $%.2f to $bankName successful".format(amount), Toast.LENGTH_LONG).show()
                     findViewById<EditText>(R.id.editRecipientAccount).text.clear()
                     findViewById<EditText>(R.id.editAmount).text.clear()
                 }.addOnFailureListener { e ->
