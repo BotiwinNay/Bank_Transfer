@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "62646504901",
+    "project_id": "banktransfer-86018",
+    "storage_bucket": "banktransfer-86018.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:62646504901:android:4026b44b91abe5c2478fac",
+        "android_client_info": {
+          "package_name": "com.example.banktransfer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWNHMHoWG5muYUiGMu0lAB6zQ8rjTHBU8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
